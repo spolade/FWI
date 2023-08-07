@@ -15,12 +15,12 @@ module fwiindices !!!************ Beginning of Module ***********!!!
 !                       OutPut: Duff Moisture Code (DMC)
 !                       call DMCcalc(17,42,0,6,45.98,4) = 8.5450511359999997
 
-!Subroutine DCcalc-     Input: Temp, rain, the previous DC value, latititude, month 
+!Subroutine DCcalc-     Input: Temp, rain, the previous DC value, latitude, month 
 !                       Output: Drought Code (DC)
 !                       call DCcalc(17,0,15,45.98,4) = 19.013999999999999
 
 
-! Fire behavior outputs:
+! Fire behaviour outputs:
 
 !Subroutine ISICalc-    Input: wind speed and current FFMC value 
 !                       Output: Initial Spread Index (ISI)
