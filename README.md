@@ -7,7 +7,8 @@ This repository calculates the Canadian Fire Weather Index (FWI), a commonly use
 
 
 **Computation of the FWI:**
-Moisture codes:  
+
+**Moisture codes:  **
 
 Subroutine FFMCcalc-  Input: Temp, relative humidity, wind speed, rain, and a previous FFMC value 
                       Output: Fine Fuel Moisture Code (FFMC)
@@ -21,7 +22,7 @@ Subroutine DCcalc-     Input: Temp, rain, the previous DC value, latitude, month
                        Output: Drought Code (DC)
 
 
-Fire behaviour outputs:
+**Fire behaviour outputs:**
 
 Subroutine ISICalc-   Input: wind speed and current FFMC value 
                       Output: Initial Spread Index (ISI)
@@ -35,8 +36,7 @@ Subroutine FWICalc-  Input: the current ISI and BUI values
 
 
 
-
-Usage:
+**Usage:**
 
 Make executable of module
 gfortran -c fwiindices.f95
