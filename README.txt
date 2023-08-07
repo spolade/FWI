@@ -1,4 +1,4 @@
-This repository calculates the Canadian Fire Weather Index (FWI), a commonly used index to calculate and assess fire weather. This code is modified from the initial algorithm provided by Simard (1970). Several improvements are applied to use this code globally (reduce the regional dependencies). The FWI code is tested with the ERA-5 Land dataset. However, it can be easily adapted for any model, such as CMIP6 models. These scripts are developed in Fortran 95. Instructions on required packages and how to use the code are provided below.
+This repository calculates the Canadian Fire Weather Index (FWI), a commonly used index to calculate and assess fire weather. This code is modified from the initial algorithm provided by Simard (1970; https://cfs.nrcan.gc.ca/publications?id=36178). Several improvements are applied to use this code globally (reduce the regional dependencies). The FWI code is tested with the ERA-5 Land dataset. However, it can be easily adapted for any model, such as CMIP6 models. These scripts are developed in Fortran 95. Instructions on required packages and how to use the code are provided below.
 
 
 Requirements on packages:
@@ -9,7 +9,7 @@ Requirements on packages:
 Computation of the FWI:
 Moisture codes:  
 
-Subroutine FFMCcalc-  Input: Temp, relative humidity, wind speed, rain, and a previous v     FFMC value 
+Subroutine FFMCcalc-  Input: Temp, relative humidity, wind speed, rain, and a previous FFMC value 
                       Output: Fine Fuel Moisture Code (FFMC)
 
 
