@@ -45,7 +45,7 @@ call get_environment_variable (ct_path, val_ct, len_ct, status, .true.)
  
  
  
-file_ct  = trim(val_ct(1:len_in))//trim(ct_name)
+file_ct  = trim(val_ct(1:len_ct))//trim(ct_name)
     
 file_temp  = trim(val_in(1:len_in))//trim(temp_name)
 file_pr    = trim(val_in(1:len_in))//trim(pr_name)
@@ -53,9 +53,10 @@ file_UWind = trim(val_in(1:len_in))//trim(uwind_name)
 file_VWind = trim(val_in(1:len_in))//trim(vwind_name)
 file_d2m   = trim(val_in(1:len_in))//trim(d2m_name)
  
-file_out   = trim(val_out(1:len_in))//trim(out_name) 
+file_out   = trim(val_out(1:len_out))//trim(out_name) 
 
 write (*,*) 'env var value = ', file_temp
+write (*,*) 'env var value = ', file_out
 
 status = nf90_open(file_temp,  nf90_NoWrite, ncid_tas)
 print *, status
