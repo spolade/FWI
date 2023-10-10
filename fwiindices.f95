@@ -15,12 +15,12 @@ module fwiindices !!!************ Beginning of Module ***********!!!
 !                       OutPut: Duff Moisture Code (DMC)
 !                       call DMCcalc(17,42,0,6,45.98,4) = 8.5450511359999997
 
-!Subroutine DCcalc-     Input: Temp, rain, the previous DC value, latitude, month 
+!Subroutine DCcalc-     Input: Temp, rain, the previous DC value, latititude, month 
 !                       Output: Drought Code (DC)
 !                       call DCcalc(17,0,15,45.98,4) = 19.013999999999999
 
 
-! Fire behaviour outputs:
+! Fire behavior outputs:
 
 !Subroutine ISICalc-    Input: wind speed and current FFMC value 
 !                       Output: Initial Spread Index (ISI)
@@ -407,33 +407,33 @@ implicit none
 end subroutine
 
 
-subroutine test_FireSeason_start(tasData, startTH, StartDate)
-implicit none
-         real :: tasData, startTH
-       ! integer, dimension(:, :), allocatable :: StartDate, EndDate
-       ! integer :: numLons, numLats, numTimes
-       ! integer :: i
-        logical :: StartDate
-
-         !real, intent(in) :: tasData, startTH
-         !logical, intent(out):: StartDate
-
-       where (tasData > startTH)
-             tasData = 1.0
-       elsewhere
-             tasData = 0.0
-       endwhere
-
-
-        if ( (sum(tasData)/3) ==  1 ) then
-            StartDate = .true. 
-         else
-           StartDate  = .false.
-         end if
-
-
-        return
-end subroutine
+!subroutine test_FireSeason_start(tasData, startTH, StartDate)
+!implicit none
+!         real :: tasData, startTH
+!       ! integer, dimension(:, :), allocatable :: StartDate, EndDate
+!       ! integer :: numLons, numLats, numTimes
+!!       ! integer :: i
+!        logical :: StartDate
+!
+!         !real, intent(in) :: tasData, startTH
+!         !logical, intent(out):: StartDate
+!
+!       where (tasData > startTH)
+!             tasData = 1.0
+!       elsewhere
+!             tasData = 0.0
+!       endwhere
+!
+!
+!        if ( (sum(tasData)/3) ==  1 ) then
+!            StartDate = .true. 
+!!         else
+!           StartDate  = .false.
+!         end if
+!
+!
+!        return
+!end subroutine
 
 
 !Lawson equations:
