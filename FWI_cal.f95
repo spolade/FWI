@@ -31,8 +31,8 @@ real     :: ffmc, dmc, dc, Lat_in1 !!! FFMC, DMC, and DC to be calculated
 real     :: isi, bui, fwi, dsr     !!! ISI, BUI, FWI, and DSR to be calculated
 
 
-character(len=120) :: in_path, out_path, ct_path, temp_name, pr_name, uwind_name, vwind_name, d2m_name, out_name, ct_name
-character(len=120) :: file_ct, file_temp, file_pr, file_UWind, file_VWind, file_d2m, file_out, val_in, val_out, val_ct
+character(len=300) :: in_path, out_path, ct_path, temp_name, pr_name, uwind_name, vwind_name, d2m_name, out_name, ct_name
+character(len=300) :: file_ct, file_temp, file_pr, file_UWind, file_VWind, file_d2m, file_out, val_in, val_out, val_ct
 
 
 ! Read DIR path and data file names from Python Wrappers
@@ -58,6 +58,10 @@ file_out   = trim(val_out(1:len_in))//trim(out_name)
 write (*,*) 'env var value = ', file_temp
 
 status = nf90_open(file_temp,  nf90_NoWrite, ncid_tas)
+print *, status
+IF (status == 0) THEN
+
+
 status = nf90_open(file_pr,    nf90_NoWrite, ncid_pr)
 status = nf90_open(file_UWind, nf90_NoWrite, ncid_UWind)
 status = nf90_open(file_VWind, nf90_NoWrite, ncid_VWind)
@@ -85,15 +89,28 @@ taxisID  = vlistInqTaxis(vlistID)
 
 ! Define the variable IDs
 ! t2m(time, latitude, longitude) ;
-status = nf90_inq_varid(ncid_tas, "latitude", latVarId)
-status = nf90_inq_varid(ncid_tas, "longitude", lonVarId)
+!status = nf90_inq_varid(ncid_tas, "latitude", latVarId)
+!status = nf90_inq_varid(ncid_tas, "longitude", lonVarId)
+!status = nf90_inq_varid(ncid_tas, "time", timeVarId)
+
+!status = nf90_inq_varid(ncid_tas, "t2m", tasVarId)
+!status = nf90_inq_varid(ncid_pr, "tp", prVarId)
+!status = nf90_inq_varid(ncid_UWind, "u10", u10VarId)
+!status = nf90_inq_varid(ncid_VWind, "v10", v10VarId)
+!status = nf90_inq_varid(ncid_d2m, "d2m", d2mVarId)
+
+
+status = nf90_inq_varid(ncid_tas, "lat", latVarId)
+status = nf90_inq_varid(ncid_tas, "lon", lonVarId)
 status = nf90_inq_varid(ncid_tas, "time", timeVarId)
 
-status = nf90_inq_varid(ncid_tas, "t2m", tasVarId)
+status = nf90_inq_varid(ncid_tas, "2t", tasVarId)
 status = nf90_inq_varid(ncid_pr, "tp", prVarId)
-status = nf90_inq_varid(ncid_UWind, "u10", u10VarId)
-status = nf90_inq_varid(ncid_VWind, "v10", v10VarId)
-status = nf90_inq_varid(ncid_d2m, "d2m", d2mVarId)
+status = nf90_inq_varid(ncid_UWind, "10u", u10VarId)
+status = nf90_inq_varid(ncid_VWind, "10v", v10VarId)
+status = nf90_inq_varid(ncid_d2m, "2d", d2mVarId)
+
+
 
 ! Get the variable dimentions 
 
@@ -153,7 +170,7 @@ status = nf90_close(ncid_ct)
 
    ! allocate memory for the output varibale Lat and Lon, time dimention will be written in file    
     allocate(FWI_grid(numLons, numLats))
-    FWI_grid = 0.0
+    !FWI_grid = 0.0
     allocate(isi_grid(numLons, numLats))
     allocate(bui_grid(numLons, numLats))
     allocate(ffmc_grid(numLons, numLats))
@@ -266,13 +283,13 @@ status = nf90_copy_att(ncid_tas, lonVarId, 'axis',ncid_fwi, varid_lon)
       day1 = MOD(vdate/1,100)
       !print *, day1
       
- IF (month1 == 1 .AND. day1 == 1) THEN
+ IF (month1 < 3) THEN
 
     !!! First z initialize FFMC, DMC, and DC
     ffmc0    = 0.00001 
     dmc0     = 0.00001   
     dc0      = 0.00001                 
-
+    FWI_grid = 0.0
    !!! First z initialize FFMC, DMC, and DC
    !ffmc0    = 85.0                  
    !dmc0     = 6.0                  
@@ -280,7 +297,7 @@ status = nf90_copy_att(ncid_tas, lonVarId, 'axis',ncid_fwi, varid_lon)
  end if
 
 
-  if (month1 >=3) then
+  if (month1 >= 3) then
 
      status = nf90_get_var(ncid_tas, tasVarId, tas, start, count)
      status = nf90_get_var(ncid_pr, prVarId, pr, start, count)
@@ -288,7 +305,7 @@ status = nf90_copy_att(ncid_tas, lonVarId, 'axis',ncid_fwi, varid_lon)
      status = nf90_get_var(ncid_VWind, v10VarId, v10, start, count)
      status = nf90_get_var(ncid_d2m, d2mVarId, d2m, start, count)
 
-
+      
 
     ! Calculate wind speed from U and V component
 
@@ -354,29 +371,38 @@ status = nf90_copy_att(ncid_tas, lonVarId, 'axis',ncid_fwi, varid_lon)
  
       !print *, FWI_grid      
 
-      status = nf90_put_var(ncid_fwi, varid_array, FWI_grid, start, count) 
+      !status = nf90_put_var(ncid_fwi, varid_array, FWI_grid, start, count) 
         
-      status = nf90_put_var(ncid_ct, varid_ffmc, ffmc_grid, start, count)
-      status = nf90_put_var(ncid_ct, varid_dmc, dmc_grid, start, count)
-      status = nf90_put_var(ncid_ct, varid_dc, dc_grid, start, count)
+      !status = nf90_put_var(ncid_ct, varid_ffmc, ffmc_grid, start, count)
+      !status = nf90_put_var(ncid_ct, varid_dmc, dmc_grid, start, count)
+      !status = nf90_put_var(ncid_ct, varid_dc, dc_grid, start, count)
       
 
   end if ! if month > 3     
-      
-      
+      status = nf90_put_var(ncid_fwi, varid_array, FWI_grid, start, count)      
+      status = nf90_put_var(ncid_ct, varid_ffmc, ffmc_grid, start, count)
+      status = nf90_put_var(ncid_ct, varid_dmc, dmc_grid, start, count)
+      status = nf90_put_var(ncid_ct, varid_dc, dc_grid, start, count)
+
 end do ! numTime loop
 
 
 
-
-   status = nf90_close(ncid_fwi)
-   call check(status, 'close')
+  status = nf90_close(ncid_tas)
+  status = nf90_close(ncid_pr)
+  status = nf90_close(ncid_UWind)
+  status = nf90_close(ncid_VWind)
+  status = nf90_close(ncid_d2m)
+  status = nf90_close(ncid_ct)
+  status = nf90_close(ncid_fwi)
+call check(status, 'close')
 
     !asize = size(rhum,3)
     !print *, asize  
 
    print *, numLons, numLats, numTimes
-  
+   print *, file_ct
+ end if
   contains
 
 subroutine check(status, operation)
