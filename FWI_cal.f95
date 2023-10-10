@@ -21,7 +21,6 @@ integer, dimension(:), allocatable :: start, count, time, time_in
 
 real, dimension(:), allocatable :: lon, lat
 
-!real, dimension(:, :, :), allocatable :: tas
 
 real, dimension(:, :), allocatable :: tas, wspd, pr, d2m, dew, sat, rhum, FWI_grid, isi_grid, bui_grid, ffmc_grid, dmc_grid, dc_grid 
 
@@ -35,7 +34,6 @@ character(len=300) :: in_path, out_path, ct_path, temp_name, pr_name, uwind_name
 character(len=300) :: file_ct, file_temp, file_pr, file_UWind, file_VWind, file_d2m, file_out, val_in, val_out, val_ct
 
 
-! Read DIR path and data file names from Python Wrappers
 ! Read DIR path and data file names from Python Wrappers
 read (*,*) in_path, out_path, temp_name, pr_name, uwind_name, vwind_name, d2m_name, out_name, ct_path, ct_name
  
@@ -55,8 +53,8 @@ file_d2m   = trim(val_in(1:len_in))//trim(d2m_name)
  
 file_out   = trim(val_out(1:len_out))//trim(out_name) 
 
-write (*,*) 'env var value = ', file_temp
-write (*,*) 'env var value = ', file_out
+write (*,*) 'temp file   = ', file_temp
+write (*,*) 'output file = ', file_out
 
 status = nf90_open(file_temp,  nf90_NoWrite, ncid_tas)
 print *, status
@@ -89,16 +87,6 @@ taxisID  = vlistInqTaxis(vlistID)
 
 
 ! Define the variable IDs
-! t2m(time, latitude, longitude) ;
-!status = nf90_inq_varid(ncid_tas, "latitude", latVarId)
-!status = nf90_inq_varid(ncid_tas, "longitude", lonVarId)
-!status = nf90_inq_varid(ncid_tas, "time", timeVarId)
-
-!status = nf90_inq_varid(ncid_tas, "t2m", tasVarId)
-!status = nf90_inq_varid(ncid_pr, "tp", prVarId)
-!status = nf90_inq_varid(ncid_UWind, "u10", u10VarId)
-!status = nf90_inq_varid(ncid_VWind, "v10", v10VarId)
-!status = nf90_inq_varid(ncid_d2m, "d2m", d2mVarId)
 
 
 status = nf90_inq_varid(ncid_tas, "lat", latVarId)
@@ -138,16 +126,6 @@ allocate(dc0(numLons, numLats))
  status = nf90_get_var(ncid_ct, varid_dmc, dmc0)
  status = nf90_get_var(ncid_ct, varid_dc, dc0)
 status = nf90_close(ncid_ct)
-
-
-
-    
-    
-  ! Read whole data array 
-  ! allocate(tas(numLons, numLats, numTimes))
-  ! status = nf90_get_var(ncid_tas, tasVarId, tas)
-  !  asize = size(tas,3)
-  !  print *, asize     
 
 
  ! Read one time step at a time; allocate memory  
@@ -370,14 +348,6 @@ status = nf90_copy_att(ncid_tas, lonVarId, 'axis',ncid_fwi, varid_lon)
        end if
 
  
-      !print *, FWI_grid      
-
-      !status = nf90_put_var(ncid_fwi, varid_array, FWI_grid, start, count) 
-        
-      !status = nf90_put_var(ncid_ct, varid_ffmc, ffmc_grid, start, count)
-      !status = nf90_put_var(ncid_ct, varid_dmc, dmc_grid, start, count)
-      !status = nf90_put_var(ncid_ct, varid_dc, dc_grid, start, count)
-      
 
   end if ! if month > 3     
       status = nf90_put_var(ncid_fwi, varid_array, FWI_grid, start, count)      
@@ -398,8 +368,6 @@ end do ! numTime loop
   status = nf90_close(ncid_fwi)
 call check(status, 'close')
 
-    !asize = size(rhum,3)
-    !print *, asize  
 
    print *, numLons, numLats, numTimes
    print *, file_ct
