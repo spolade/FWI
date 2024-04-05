@@ -19,6 +19,7 @@ parser.add_argument('-year', required=True, help="Input year for the wildfires_f
 parser.add_argument('-month', required=True, help="Input month for the wildfires_fwi app", default=2)
 parser.add_argument('-day', required=True, help="Input day for the wildfires_fwi app", default=3)
 parser.add_argument('-hpctmpdir', required=True, help="Input expid for the wildfires_fwi app", default=4)
+parser.add_argument('-hpcrootdir', required=True, help="ROOT directory of the experiment", default=4)
 
 # Third step, parse arguments.
 # The default args list is taken from sys.args
@@ -30,9 +31,9 @@ day = args.day
 hpctmpdir = args.hpctmpdir
 
 # Provide the input and output DIR path
-in_path  = f'{hpcrootdir}/'
-out_path = f'{hpcrootdir}/'
-ct_path  = f'{hpcrootdir}/'
+in_path  = f'{hpcrootdir}/tmp'
+out_path = f'{hpcrootdir}/tmp'
+ct_path  = f'{hpcrootdir}/tmp'
 
 
 
