@@ -13,13 +13,13 @@ from functions_cal_FWI import *
 # First step, create a parser:
 parser = argparse.ArgumentParser(description="Runscript for the wildfires_fwi application")
 
-
 # Second step, add positional arguments or
 # https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_argument
 parser.add_argument('-year', required=True, help="Input year for the wildfires_fwi app", default=1)
 parser.add_argument('-month', required=True, help="Input month for the wildfires_fwi app", default=2)
 parser.add_argument('-day', required=True, help="Input day for the wildfires_fwi app", default=3)
 parser.add_argument('-hpcrootdir', required=True, help="ROOT directory of the experiment", default=4)
+parser.add_argument('-hpcprojdir', required=True, help="PROJECT directory of the HPC", default=8)
 
 
 # Third step, parse arguments.
@@ -29,12 +29,15 @@ args = parser.parse_args()
 year = args.year
 month = args.month
 day = args.day
+
 #hpctmpdir = args.hpctmpdir
+hpcrootdir = args.hpcrootdir
+hpcprojdir = args.hpcprojdir
 
 # Provide the input and output DIR path
-in_path  = f'{hpcrootdir}/tmp'
-out_path = f'{hpcrootdir}/tmp'
-ct_path  = f'{hpcrootdir}/tmp'
+in_path  = f'{hpcrootdir}/'
+out_path = f'{hpcrootdir}/'
+ct_path  = f'{hpcrootdir}/'
 
 
 
