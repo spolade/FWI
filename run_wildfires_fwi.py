@@ -28,7 +28,7 @@ args = parser.parse_args()
 year = args.year
 month = args.month
 day = args.day
-hpctmpdir = args.hpctmpdir
+#hpctmpdir = args.hpctmpdir
 
 # Provide the input and output DIR path
 in_path  = f'{hpcrootdir}/tmp'
@@ -201,7 +201,7 @@ FWI_all .to_netcdf(path=out_file)
 print("Finished!")
 
 
-checkOutputFile = f'{hpcrootdir}/tmp/fwi_output_{year}{month}{day}.nc''
+checkOutputFile = f'{hpcrootdir}/tmp/fwi_output_{year}{month}{day}.nc'
 
 
 
