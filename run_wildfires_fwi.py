@@ -31,9 +31,9 @@ day = args.day
 hpctmpdir = args.hpctmpdir
 
 # Provide the input and output DIR path
-in_path  = f'{hpcrootdir}/tmp'
-out_path = f'{hpcrootdir}/tmp'
-ct_path  = f'{hpcrootdir}/tmp'
+in_path  = f'{hpctmpdir}/'
+out_path = f'{hpctmpdir}/'
+ct_path  = f'{hpctmpdir}/'
 
 
 
