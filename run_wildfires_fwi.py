@@ -21,6 +21,7 @@ parser.add_argument('-month', required=True, help="Input month for the wildfires
 parser.add_argument('-day', required=True, help="Input day for the wildfires_fwi app", default=3)
 parser.add_argument('-hpcrootdir', required=True, help="ROOT directory of the experiment", default=4)
 
+
 # Third step, parse arguments.
 # The default args list is taken from sys.args
 args = parser.parse_args()
@@ -39,14 +40,13 @@ ct_path  = f'{hpcrootdir}/tmp'
 
 # Provide the data file name for all variables 
 # Provide the data file name for all variables 
-temp_name   = f'{year}_{month}_{day}_T00_00_to_{year}_{month}_{day}_T23_00_2t_raw_data.nc' #2m_temperature_DMIN_era5Land.nc"
-pr_name     = f'{year}_{month}_{day}_T13_tp_daily_noon_sum.nc' #total_precipitation_DSUM_era5Land.nc"
-uwind_name  = f'{year}_{month}_{day}_T00_00_to_{year}_{month}_{day}_T23_00_10u_raw_data.nc'#"10m_u_component_of_wind_DMIN_era5Land.nc"
-vwind_name  = f'{year}_{month}_{day}_T00_00_to_{year}_{month}_{day}_T23_00_10v_raw_data.nc' #"10m_v_component_of_wind_DMIN_era5Land.nc"
-d2m_name    = f'{year}_{month}_{day}_T00_00_to_{year}_{month}_{day}_T23_00_2d_raw_data.nc'#"2m_dewpoint_temperature_DMIN_era5Land.nc"
+temp_name   = f'{year}_{month}_{day}_T12_00_2t_raw_data.nc' 
+pr_name     = f'{year}_{month}_{day}_T13_tp_timestep_60_daily_noon_sum.nc'
+uwind_name  = f'{year}_{month}_{day}_T12_00_10u_raw_data.nc'
+vwind_name  = f'{year}_{month}_{day}_T12_00_10v_raw_data.nc' 
+d2m_name    = f'{year}_{month}_{day}_T12_00_2d_raw_data.nc'
 out_name    = f'fwi_output_{year}{month}{day}.nc'
 ct_name     = f"FWI_Const1.nc"
-
 
 file_t2m   = os.path.join(in_path, temp_name)
 file_pr    = os.path.join(in_path, pr_name)
