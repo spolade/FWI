@@ -4,7 +4,6 @@ Functions used for the calculation of the Canadian Fire Weather Index (FWI)
 The FWI System outputs three moisture codes: Fine Fuel Moisture Code (FFMC); Duff Moisture Code (DMC); Drought Code (DC)
  & three fire behavior outputs: Initial Spread Index (ISI); Build-Up Index (BUI); Fire Weather Index (FWI)
 
- 
 Moisture codes:  
 
 Function FFMC-  Input: Temp, relative humidity, wind speed, rain, and a previous FFMC value 
