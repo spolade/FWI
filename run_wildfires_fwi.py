@@ -35,9 +35,9 @@ hpcrootdir = args.hpcrootdir
 hpcprojdir = args.hpcprojdir
 
 # Provide the input and output DIR path
-in_path  = f'{hpcrootdir}/'
-out_path = f'{hpcrootdir}/'
-ct_path  = f'{hpcrootdir}/'
+in_path  = f'{hpcrootdir}/temp/'
+out_path = f'{hpcrootdir}/temp/'
+ct_path  = f'{hpcrootdir}/temp/'
 
 
 
