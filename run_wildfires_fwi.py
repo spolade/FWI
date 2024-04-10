@@ -40,7 +40,6 @@ out_path = f'{hpcrootdir}/tmp/'
 ct_path  = f'{hpcrootdir}/tmp/'
 
 
-
 # Provide the data file name for all variables 
 # Provide the data file name for all variables 
 temp_name   = f'{year}_{month}_{day}_T12_00_2t_raw_data.nc' 
