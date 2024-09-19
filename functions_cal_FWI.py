@@ -292,6 +292,7 @@ def ISI(WIND, FFMC):
     return 0.208 * fWIND * fF
 
 
+
 def BUI(DMC, DC):
     """
     Calculates today's Buildup Index
