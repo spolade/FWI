@@ -8,7 +8,6 @@ import argparse
 
 from functions_cal_FWI import *
 
-
 # First step, create a parser:
 parser = argparse.ArgumentParser(description="Runscript for the wildfires_fwi application")
 
