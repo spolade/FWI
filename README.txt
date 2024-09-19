@@ -1,7 +1,6 @@
 This repository calculates the Canadian Fire Weather Index (FWI), a commonly used index to calculate and assess fire weather. This code is modified from the initial algorithm provided by Van Wagner and Pickett in 1985 (Van Wagner, C.E.; Pickett, T.L. (1985) Equations and FORTRAN program for the Canadian Forest Fire Weather Index SystemCanadian Forestry Service, Petawawa National Forestry Institute, Chalk River, Ontario. Forestry Technical Report 33. 18 p.). Several improvements are applied to use this code globally (reduce the regional dependencies). The FWI code is tested with the ERA-5 Land dataset. However, it can be easily adapted for any model, such as CMIP6 models. These scripts are developed in Fortran 95. Instructions on required packages and how to use the code are provided below.
 
 
-
 Requirements on packages:
 •	Python 3.6
 •	os
