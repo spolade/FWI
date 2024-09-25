@@ -1,25 +1,14 @@
 This repository calculates the Canadian Fire Weather Index (FWI), a commonly used index to calculate and assess fire weather. This code is modified from the initial algorithm provided by Van Wagner and Pickett in 1985 (Van Wagner, C.E.; Pickett, T.L. (1985) Equations and FORTRAN program for the Canadian Forest Fire Weather Index SystemCanadian Forestry Service, Petawawa National Forestry Institute, Chalk River, Ontario. Forestry Technical Report 33. 18 p.). Several improvements are applied to use this code globally (reduce the regional dependencies). The FWI code is tested with the ERA-5 Land dataset. However, it can be easily adapted for any model, such as CMIP6 models. These scripts are developed in Fortran 95. Instructions on required packages and how to use the code are provided below.
 
 
-Requirements on packages:
-•	Python 3.6
-•	os
-•	sys
-•	time
-•	numpy
-•	xarray
-•	pandas
-•	argparse
-
-
 Computation of the FWI:
 Functions used for the calculation of the Canadian Fire Weather Index (FWI)
 
 The FWI System outputs three moisture codes: Fine Fuel Moisture Code (FFMC); Duff Moisture Code (DMC); Drought Code (DC)
  & three fire behavior outputs: Initial Spread Index (ISI); Build-Up Index (BUI); Fire Weather Index (FWI)
 
- 
-Moisture codes:  
+
+Moisture codes:
 
 Function FFMC-  Input: Temp, relative humidity, wind speed, rain, and a previous FFMC value 
                        Output Fine Fuel Moisture Code (FFMC)
@@ -44,12 +33,3 @@ Function BUI-    Input: the current DMC and DC values
 
 Function FWI-    Input: the current ISI and BUI values 
                        Output: Fire Weather Index (FWI)
-
-
-
-
-
-Usage:
-
-python run_wildfires_fwi.py
-
