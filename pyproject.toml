@@ -2,7 +2,7 @@
 name = "fwi"
 version = "0.1.0"
 authors = [
-  { name="", email="" },
+  { name="Suraj Polade", email="suraj.polade@fmi.fi" },
 ]
 description = "Fire Weather Index (FWI)"
 readme = "README.md"
