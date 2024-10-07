@@ -1,6 +1,6 @@
 [project]
 name = "fwi"
-version = "0.1.0"
+version = "2.2.0"
 authors = [
   { name="Suraj Polade", email="suraj.polade@fmi.fi" },
 ]
