@@ -9,7 +9,7 @@ import argparse
 from .functions_cal_fwi import *
 
 
-def cli():
+def main():
     # First step, create a parser:
     parser = argparse.ArgumentParser(description="Runscript for the wildfires_fwi application")
 
@@ -238,4 +238,4 @@ def cli():
 
 
 if __name__ == "__main__":
-    cli()
+    main()

@@ -20,4 +20,4 @@ dependencies = [
 Homepage = "https://github.com/spolade/FWI"
 
 [project.scripts]
-run_wildfires_fwi = "fwi.run_wildfires_fwi:cli"
+run_wildfires_fwi = "fwi.run_wildfires_fwi:main"
