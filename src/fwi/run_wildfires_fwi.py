@@ -6,7 +6,7 @@ import xarray as xr
 import pandas as pd
 import argparse
 
-from .functions_cal_fwi import *
+from fwi.functions_cal_fwi import *
 
 
 def main():
