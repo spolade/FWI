@@ -21,7 +21,7 @@ from fwi.functions_cal_fwi import FFMC, DMC, DC, ISI, BUI, FWI
 
 
 # Read the sample data file 
-df = pd.read_csv('/Users/poladesu/D_Drive/Prog_FMI/dmin_DtEarth/FWI_test_data.csv', delimiter=';', skiprows=0, names=["Lat", "Month", "Day", "Temp", "RH", "Wind", "Rain", "FFMC", "DMC", "DC", "ISI", "BUI", "FWI"])
+df = pd.read_csv('FWI_test_data.csv', delimiter=';', skiprows=0, names=["Lat", "Month", "Day", "Temp", "RH", "Wind", "Rain", "FFMC", "DMC", "DC", "ISI", "BUI", "FWI"])
 
 # Var LIST: "Lat", "Month", "Day", "Temp.", "RH", "Wind", "Rain", "FFMC", "DMC", "DC", "ISI", "BUI", "FWI"])
 
