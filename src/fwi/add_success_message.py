@@ -1,7 +1,7 @@
 import os
 
 # Path to the log file
-log_file = "/Users/poladesu/D_Drive/Prog_FMI/dmin_DtEarth/test_fwi_output.log"
+log_file = "test_fwi_output.log"
 
 def add_success_message(log_file, num_tests=6):
     # Check if the log file exists
