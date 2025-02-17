@@ -46,6 +46,7 @@ def main():
 
     # Provide the data file name for all variables 
     previous_day = int(args.day) - 1
+    previous_month = int(args.month) - 1
 
     temp_name     = f'{year}_{month}_{day}_T12_00_2t_raw_data.nc' 
     pr_name       = f'{year}_{month}_{str(previous_day)}_T13_tp_timestep_60_daily_noon_sum.nc'
@@ -54,6 +55,7 @@ def main():
     d2m_name      = f'{year}_{month}_{day}_T12_00_2d_raw_data.nc'
     out_name      = f'{year}_{month}_{day}_T12_00_fwi.nc'
     restart_name  = f'{year}_{month}_{day}_T12_00_fwi_restart_file.nc'
+    restart_prv   = f'{year}_{str(previous_month)}_{day}_T12_00_fwi_restart_file.nc'
     ct_name       = f"FWI_Const1.nc"
 
     file_t2m      = os.path.join(in_path, temp_name)
@@ -63,6 +65,7 @@ def main():
     file_10v      = os.path.join(in_path, vwind_name)
     out_file      = os.path.join(in_path, out_name)
     restart_file  = os.path.join(in_path, restart_name)
+    restart_file_prv  = os.path.join(in_path, restart_prv)
     const_file    = os.path.join(in_path, ct_name)
 
     # Read data
@@ -179,18 +182,16 @@ def main():
             'FFMCPrev': FFMCPrev,
             'DMCPrev': DMCPrev,
             'DCPrev': DCPrev})
-            dataset.to_netcdf(const_file)			
+            dataset.to_netcdf(const_file)
         else:
-        	if os.path.exists(restart_file):
-        		print('reding from restart_file')
-        		ds_con = xr.open_dataset(restart_file)
-        	else:
-        		print('reding from cont file')
-        		ds_con = xr.open_dataset(const_file)
-        	FFMCPrev = ds_con.FFMCPrev
-        	DMCPrev = ds_con.DMCPrev
-        	DCPrev = ds_con.DCPrev
-        	os.remove(const_file)
+            if os.path.exists(restart_file):
+               ds_con = xr.open_dataset(restart_file)
+            else:
+                ds_con = xr.open_dataset(const_file)
+            FFMCPrev = ds_con.FFMCPrev
+            DMCPrev = ds_con.DMCPrev
+            DCPrev = ds_con.DCPrev
+            os.remove(const_file)
                     
         FFMCPrev_in = FFMCPrev.values
         DMCPrev_in  = DMCPrev.values
@@ -217,9 +218,11 @@ def main():
             'DCPrev': DC_in_xr})
         dataset.to_netcdf(const_file)
 #       Write the restart file for the 1st of each month        
-		
-		if int(tas_slice.time.dt.day) ==1:
-        	dataset.to_netcdf(restart_file)			
+
+        if int(tas_slice.time.dt.day) ==1:
+            dataset.to_netcdf(restart_file)
+            if os.path.exists(restart_prv):
+                os.remove(restart_prv)
         dataset.close()
                 
         del FFMC_in, DMC_in, DC_in, ISI_in, BUI_in, FWI_in  
@@ -229,13 +232,13 @@ def main():
        
      # Add global attributes
     FWI_all.attrs.update({
-    	'title': 'Fire Weather Index Data',
-    	'expid':{expid},
-    	'app':{app},
-    	'history': 'Created on ' + pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S'),
-    	'references': 'ClimateDT project- PhaseII',
-   	    'comment': 'This file was created as part of the Wildfire_FWI application run within the ClimateDT project.'
-	})
+        'title': 'Fire Weather Index Data',
+        'expid':{expid},
+        'app':{app},
+        'history': 'Created on ' + pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S'),
+        'references': 'ClimateDT project- PhaseII',
+        'comment': 'This file was created as part of the Wildfire_FWI application run within the ClimateDT project.'
+    })
 
 
     FWI_all .to_netcdf(path=out_file)	
