@@ -64,8 +64,8 @@ previous_day = int(args.day) - 1
 previous_month = int(args.month) - 1
 
 temp_name     = f"{year}_{month}_{day}_T12_00_2t_raw_data.nc"
-pr_name       = f"{year}_{month}_{str(previous_day).zfill(2)}_T13_tp_timestep_60_daily_noon_sum.nc"
-pr_out        = f"{year}_{month}_{str(previous_day).zfill(2)}_T13_tp_OUT.nc"
+#pr_name       = f"{year}_{month}_{str(previous_day)}_T13_tp_timestep_60_daily_noon_sum.nc"
+pr_name       = f"{year}_{month}_{str(previous_day).zfill(2)}_T13_avg_tprate_timestep_60_daily_noon_mean.nc"
 uwind_name    = f"{year}_{month}_{day}_T12_00_10u_raw_data.nc"
 vwind_name    = f"{year}_{month}_{day}_T12_00_10v_raw_data.nc"
 d2m_name      = f"{year}_{month}_{day}_T12_00_2d_raw_data.nc"
@@ -77,7 +77,6 @@ ct_name       = f"FWI_Const1.nc"
 
 file_t2m          = os.path.join(in_path, temp_name)
 file_pr           = os.path.join(in_path, pr_name)
-pr_out_file       = os.path.join(in_path, pr_out)
 file_d2m          = os.path.join(in_path, d2m_name)
 file_10u          = os.path.join(in_path, uwind_name)
 file_10v          = os.path.join(in_path, vwind_name)
@@ -125,7 +124,7 @@ if os.path.exists(file_pr):
     pr_var_name = list(ds_pr.data_vars.keys())[0]
     # Get the variable's unit
     pr_units = ds_pr[pr_var_name].attrs.get("units", "").lower()
-      
+
     # Convert precipitation  to mm/day
     if pr_units in ["kg m-2 s-1", "kg/m2/s", "kg m**-2 s**-1"]:  # kg/m²/s to mm/day
         ds_pr[pr_var_name] = ds_pr[pr_var_name]* 86400
@@ -143,6 +142,7 @@ else:
     pr = xr.full_like(tas, np.nan)
 
 
+
 # Calculate saturation vapor pressure from dew point temperature
 sat_dew = 6.11 * np.exp(53.49 - 6808 / dev - 5.09 * np.log(dev))
 
@@ -152,6 +152,7 @@ sat_tas = 6.11 * np.exp(53.49 - 6808 / tas - 5.09 * np.log(tas))
 # Calculate relative humidity
 rhum = (sat_dew / sat_tas) * 100
 
+# Correct the units
 
 #Correct the units 
      
@@ -306,46 +307,48 @@ FWI_all.attrs = {"long_name": "Fire Weather Index", "units": " "}
 FWI_all = FWI_all.to_dataset(name="fwi")
 
 # Add global attributes
-FWI_all.attrs.update({
-    'dataset': 'climate-dt',
-    'experiment': 'historical',
-    'generation': '1',
-    'levtype': 'sfc',
-    'model': 'IFS-NEMO',
-    'history': 'Created on ' + pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S'),
-    'comment': 'This file was created as part of the Wildfire_FWI application run within the ClimateDT project.'
-})
+#FWI_all.attrs.update({
+#    'dataset': 'climate-dt',
+#    'experiment': 'historical',
+#    'generation': '1',
+#    'levtype': 'sfc',
+#    'model': 'IFS-NEMO',
+#    'history': 'Created on ' + pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S'),
+#    'comment': 'This file was created as part of the Wildfire_FWI application run within the ClimateDT project.'
+#})
 
 
-## Add global attributes
-## Copy only the "dataset" attribute if it exists
-#if "activity" in ds_t2m.attrs:
-#    FWI_all.attrs["activity"] = ds_t2m.attrs["activity"]
-#if "dataset" in ds_t2m.attrs:
-#    FWI_all.attrs["dataset"] = ds_t2m.attrs["dataset"]
-#if "experiment" in ds_t2m.attrs:
-#    FWI_all.attrs["experiment"] = ds_t2m.attrs["experiment"]
-#if "generation" in ds_t2m.attrs:
-#    FWI_all.attrs["generation"] = ds_t2m.attrs["generation"]
-#if "type" in ds_t2m.attrs:
-#    FWI_all.attrs["type"] = ds_t2m.attrs["type"]
-#if "levtype" in ds_t2m.attrs:
-#    FWI_all.attrs["levtype"] = ds_t2m.attrs["levtype"]
-#if "model" in ds_t2m.attrs:
-#    FWI_all.attrs["model"] = ds_t2m.attrs["model"]
-#if "class" in ds_t2m.attrs:
-#    FWI_all.attrs["class"] = ds_t2m.attrs["class"]
-#if "realization" in ds_t2m.attrs:
-#    FWI_all.attrs["realization"] = ds_t2m.attrs["realization"]
-#if "stream" in ds_t2m.attrs:
-#    FWI_all.attrs["stream"] = ds_t2m.attrs["stream"]   
-#if "resolution" in ds_t2m.attrs:
-#    FWI_all.attrs["resolution"] = ds_t2m.attrs["resolution"]
-#if "expver" in ds_t2m.attrs:
-#    FWI_all.attrs["expver"] = ds_t2m.attrs["expver"]        
-#FWI_all.attrs["history"] = 'Created on ' + pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S'),
+# Add global attributes
+# Copy only the "dataset" attribute if it exists
+if "activity" in ds_t2m.attrs:
+    FWI_all.attrs["activity"] = ds_t2m.attrs["activity"]
+if "dataset" in ds_t2m.attrs:
+    FWI_all.attrs["dataset"] = ds_t2m.attrs["dataset"]
+if "experiment" in ds_t2m.attrs:
+    FWI_all.attrs["experiment"] = ds_t2m.attrs["experiment"]
+if "generation" in ds_t2m.attrs:
+    FWI_all.attrs["generation"] = ds_t2m.attrs["generation"]
+if "type" in ds_t2m.attrs:
+    FWI_all.attrs["type"] = ds_t2m.attrs["type"]
+if "levtype" in ds_t2m.attrs:
+    FWI_all.attrs["levtype"] = ds_t2m.attrs["levtype"]
+if "model" in ds_t2m.attrs:
+    FWI_all.attrs["model"] = ds_t2m.attrs["model"]
+if "class" in ds_t2m.attrs:
+    FWI_all.attrs["class"] = ds_t2m.attrs["class"]
+if "realization" in ds_t2m.attrs:
+    FWI_all.attrs["realization"] = ds_t2m.attrs["realization"]
+if "stream" in ds_t2m.attrs:
+    FWI_all.attrs["stream"] = ds_t2m.attrs["stream"]   
+if "resolution" in ds_t2m.attrs:
+    FWI_all.attrs["resolution"] = ds_t2m.attrs["resolution"]
+if "expver" in ds_t2m.attrs:
+    FWI_all.attrs["expver"] = ds_t2m.attrs["expver"]        
+
+FWI_all.attrs["history"] = 'Created on ' + pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S'),
 
 FWI_all.to_netcdf(path=out_file)
+
 
 print("Finished!")
 
