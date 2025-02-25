@@ -1,241 +1,362 @@
 import os
-import sys  # used for running all at once
-import time
 import numpy as np
 import xarray as xr
 import pandas as pd
 import argparse
 
-from fwi.functions_cal_fwi import *
+import fwi
+
+from fwi.functions_cal_fwi import FFMC, DMC, DC, ISI, BUI, FWI
+
+print(
+    fwi.__init__
+)  # this is to overcome issue with the pip installation of the package
+
+# First step, create a parser:
+parser = argparse.ArgumentParser(
+    description="Runscript for the wildfires_fwi application"
+)
 
 
-def main():
-    # First step, create a parser:
-    parser = argparse.ArgumentParser(description="Runscript for the wildfires_fwi application")
+# Second step, add positional arguments or
+# https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_argument
+parser.add_argument(
+    "--year", required=True, help="Input year for the wildfires_fwi app", default=1
+)
+parser.add_argument(
+    "--month", required=True, help="Input month for the wildfires_fwi app", default=2
+)
+parser.add_argument(
+    "--day", required=True, help="Input day for the wildfires_fwi app", default=3
+)
+parser.add_argument(
+    "--hpcrootdir", required=True, help="ROOT directory of the experiment", default=4
+)
+parser.add_argument(
+    "--hpcprojdir", required=True, help="PROJECT directory of the HPC", default=8
+)
+parser.add_argument(
+    "--hpctmpdir",
+    required=True,
+    help="Input expid for the wildfires_fwi app",
+    default=4,
+)
+
+# Third step, parse arguments.
+# The default args list is taken from sys.args
+args = parser.parse_args()
+
+year = args.year
+month = args.month
+day = args.day
+
+hpctmpdir = args.hpctmpdir
+hpcrootdir = args.hpcrootdir
+hpcprojdir = args.hpcprojdir
+
+# Provide the input and output DIR path
+in_path = f"{hpctmpdir}/"
+out_path = f"{hpctmpdir}/"
+ct_path = f"{hpctmpdir}/"
+
+# Provide the data file name for all variables
+previous_day = int(args.day) - 1
+previous_month = int(args.month) - 1
+
+temp_name     = f"{year}_{month}_{day}_T12_00_2t_raw_data.nc"
+pr_name       = f"{year}_{month}_{str(previous_day).zfill(2)}_T13_tp_timestep_60_daily_noon_sum.nc"
+pr_out        = f"{year}_{month}_{str(previous_day).zfill(2)}_T13_tp_OUT.nc"
+uwind_name    = f"{year}_{month}_{day}_T12_00_10u_raw_data.nc"
+vwind_name    = f"{year}_{month}_{day}_T12_00_10v_raw_data.nc"
+d2m_name      = f"{year}_{month}_{day}_T12_00_2d_raw_data.nc"
+out_name      = f'{year}_{month}_{day}_T12_00_fwi.nc'
+restart_name  = f'{year}_{month}_{day}_T12_00_fwi_restart_file.nc'
+restart_prv   = f'{year}_{str(previous_month).zfill(2)}_{day}_T12_00_fwi_restart_file.nc'
+ct_name       = f"FWI_Const1.nc"
 
 
-    # Second step, add positional arguments or
-    # https://docs.python.org/3/library/argparse.html#argparse.ArgumentParser.add_argument
-    parser.add_argument('-year', required=True, help="Input year for the wildfires_fwi app", default=1)
-    parser.add_argument('-month', required=True, help="Input month for the wildfires_fwi app", default=2)
-    parser.add_argument('-day', required=True, help="Input day for the wildfires_fwi app", default=3)
-    parser.add_argument('-hpcrootdir', required=True, help="ROOT directory of the experiment", default=4)
-    parser.add_argument('-hpcprojdir', required=True, help="PROJECT directory of the HPC", default=8)
-    parser.add_argument('-hpctmpdir', required=True, help="Input expid for the wildfires_fwi app", default=4)
+file_t2m          = os.path.join(in_path, temp_name)
+file_pr           = os.path.join(in_path, pr_name)
+pr_out_file       = os.path.join(in_path, pr_out)
+file_d2m          = os.path.join(in_path, d2m_name)
+file_10u          = os.path.join(in_path, uwind_name)
+file_10v          = os.path.join(in_path, vwind_name)
+out_file          = os.path.join(in_path, out_name)
+restart_file      = os.path.join(in_path, restart_name)
+restart_file_prv  = os.path.join(in_path, restart_prv)
+const_file        = os.path.join(in_path, ct_name)
 
-    # Third step, parse arguments.
-    # The default args list is taken from sys.args
-    args = parser.parse_args()
+# Read data
 
-    year = args.year
-    month = args.month
-    day = args.day
+ds_d2m = xr.open_dataset(file_d2m)
+ds_10u = xr.open_dataset(file_10u)
+ds_10v = xr.open_dataset(file_10v)
+ds_t2m = xr.open_dataset(file_t2m)
 
-    hpctmpdir = args.hpctmpdir
-    hpcrootdir = args.hpcrootdir
-    hpcprojdir = args.hpcprojdir
+# Read Variable Name 
+d2m_var_name = list(ds_d2m.data_vars.keys())[0]
+u10_var_name = list(ds_10u.data_vars.keys())[0]
+v10_var_name = list(ds_10v.data_vars.keys())[0]
+t2m_var_name = list(ds_t2m.data_vars.keys())[0]
 
-    # Provide the input and output DIR path
-    in_path  = f'{hpctmpdir}/'
-    out_path = f'{hpctmpdir}/'
-    ct_path  = f'{hpctmpdir}/'
-
-    # Provide the input and output DIR path
-    #in_path  = f'{hpcrootdir}/tmp'
-    #out_path = f'{hpcrootdir}/tmp'
-    #ct_path  = f'{hpcrootdir}/tmp'
-
-    #in_path  = '/scratch/project_465000454/tmp/a15m'
-    #out_path = '/scratch/project_465000454/tmp/a15m'
-    #ct_path  = '/scratch/project_465000454/tmp/a15m'
-
-    #in_path  = f'{hpcrootdir}/tmp'
-    #out_path = f'{hpcrootdir}/tmp'
-    #ct_path  = f'{hpcrootdir}/tmp'
+# Calculate wind speed
+# Extract Data only for 12 UTC
+ds_10uN = ds_10u.sel(time=ds_10u["time.hour"] == 12)
+ds_10vN = ds_10v.sel(time=ds_10v["time.hour"] == 12)
+ds_t2mN = ds_t2m.sel(time=ds_t2m["time.hour"] == 12)
+ds_d2mN = ds_d2m.sel(time=ds_d2m["time.hour"] == 12)
 
 
-    # Provide the data file name for all variables 
-    previous_day = int(args.day) - 1
+wspd = np.sqrt((ds_10uN[u10_var_name] * ds_10uN[u10_var_name]) + (ds_10vN[v10_var_name] * ds_10vN[v10_var_name]))
+wspd.attrs["units"] = ds_10uN[u10_var_name].attrs.get("units", "").lower()
+wspd_units = wspd.attrs.get("units", "").lower()
 
-    temp_name   = f'{year}_{month}_{day}_T12_00_2t_raw_data.nc' 
-    #pr_name     = f'{year}_{month}_{day}_T13_tp_timestep_60_daily_noon_sum.nc'
-    pr_name     = f'{year}_{month}_{str(previous_day)}_T13_tp_timestep_60_daily_noon_sum.nc'
-    uwind_name  = f'{year}_{month}_{day}_T12_00_10u_raw_data.nc'
-    vwind_name  = f'{year}_{month}_{day}_T12_00_10v_raw_data.nc' 
-    d2m_name    = f'{year}_{month}_{day}_T12_00_2d_raw_data.nc'
-    out_name    = f'fwi_output_{year}{month}{day}.nc'
-    ct_name     = f"FWI_Const1.nc"
-
-    file_t2m   = os.path.join(in_path, temp_name)
-    file_pr    = os.path.join(in_path, pr_name)
-    file_d2m   = os.path.join(in_path, d2m_name)
-    file_10u   = os.path.join(in_path, uwind_name)
-    file_10v   = os.path.join(in_path, vwind_name)
-    out_file   = os.path.join(in_path, out_name)
-    const_file = os.path.join(in_path, ct_name)
-
-    # Read data
-
-    ds_d2m     = xr.open_dataset(file_d2m)
-    ds_10u     = xr.open_dataset(file_10u)
-    ds_10v     = xr.open_dataset(file_10v)
-    ds_t2m     = xr.open_dataset(file_t2m)
-
-    # vwind =ds_vwind.sel(time=ds_vwind['time.hour'] == 12)
-    # Calculate wind speed 	
-
-    # Extract Data only for 12 UTC 
-    ds_10uN =ds_10u.sel(time=ds_10u['time.hour'] == 12)
-    ds_10vN =ds_10v.sel(time=ds_10v['time.hour'] == 12)
-    ds_t2mN =ds_t2m.sel(time=ds_t2m['time.hour'] == 12)
-    ds_d2mN =ds_d2m.sel(time=ds_d2m['time.hour'] == 12)
+del ds_10u, ds_10v, ds_10uN, ds_10vN
 
 
-    wspd = np.sqrt((ds_10uN['10u'] * ds_10uN['10u']) + (ds_10vN['10v'] * ds_10vN['10v']))
-    del  ds_10u, ds_10v, ds_10uN,ds_10vN 
-        
-        
-    # Access temperature and dew point temperature variables
-    tas = ds_t2mN['2t']  # Current temperature (in Kelvin)
-    dev = ds_d2mN['2d']  # Dew point temperature (in Kelvin)
+# Access temperature and dew point temperature variables
+tas = ds_t2mN[t2m_var_name]  # Current temperature (in Kelvin)
+dev = ds_d2mN[d2m_var_name]  # Dew point temperature (in Kelvin)
 
 
-    if os.path.exists(file_pr):
-        # Perform your operation here
-        ds_pr      = xr.open_dataset(file_pr)
-        ds_pr['tp'] = ds_pr['tp']* 1000
-        pr          = ds_pr['tp']
+# Read the PR data
+if os.path.exists(file_pr):
+    ds_pr      = xr.open_dataset(file_pr)
+    pr_var_name = list(ds_pr.data_vars.keys())[0]
+    # Get the variable's unit
+    pr_units = ds_pr[pr_var_name].attrs.get("units", "").lower()
+      
+    # Convert precipitation  to mm/day
+    if pr_units in ["kg m-2 s-1", "kg/m2/s", "kg m**-2 s**-1"]:  # kg/m²/s to mm/day
+        ds_pr[pr_var_name] = ds_pr[pr_var_name]* 86400
+        pr_new_units = "mm/day"
+    elif pr_units in ["M", "m"]:  # m to mm/day
+        ds_pr[pr_var_name] = ds_pr[pr_var_name]* 1000
+        pr_new_units = "mm/day"
+    elif pr_units in ["mm/day", "mm d-1"]:  # Already in mm/day
+        pr_new_units = "mm/day"
     else:
-        pr = xr.full_like(tas, np.nan)
+        pr_new_units = "Unknown"  # Handle unknown units
+    pr     = ds_pr[pr_var_name]
+    pr.attrs["units"] = pr_new_units
+else:
+    pr = xr.full_like(tas, np.nan)
 
 
-    # Calculate saturation vapor pressure from dew point temperature
-    sat_dew = 6.11 * np.exp(53.49 - 6808 / dev - 5.09 * np.log(dev))
-        
-    # Calculate saturation vapor pressure from current temperature
-    sat_tas = 6.11 * np.exp(53.49 - 6808 / tas - 5.09 * np.log(tas))
-        
-    # Calculate relative humidity
-    rhum = (sat_dew / sat_tas) * 100
-            
-    #Correct the units 
-        
-    #Temperature K == Deg C
+# Calculate saturation vapor pressure from dew point temperature
+sat_dew = 6.11 * np.exp(53.49 - 6808 / dev - 5.09 * np.log(dev))
+
+# Calculate saturation vapor pressure from current temperature
+sat_tas = 6.11 * np.exp(53.49 - 6808 / tas - 5.09 * np.log(tas))
+
+# Calculate relative humidity
+rhum = (sat_dew / sat_tas) * 100
+
+
+#Correct the units 
+     
+# Temperature
+tas_units = tas.attrs.get("units", "").lower()
+if tas_units in ["K", "k","K deg", "k deg"]:  # #Temperature K == Deg C
     tas = tas - 273.15
-        
-    #"Wind speed m/s == km/h
+    tas_new_units = "C"
+elif tas_units in ["C", "C deg"]:  # Already in c
+    tas_new_units = "C"
+else:
+    tas_new_units = "Unknown"  # Handle unknown units
+    
+# Wind Speed
+if wspd_units in ["m/s", "m s**-1"]: #"Wind speed m/s == km/h
     wspd = wspd * 3.6
-        
-    rhum = xr.where(rhum > 100, 100, rhum)
-        
-        
-    FWI_all = xr.full_like(tas, 0.0)
-        
-        
-    numb_day = sum([pd.Period(f'{year}-{i}-1').daysinmonth for i in range(1,13)])
-    numb_day_aligned = xr.full_like(tas.isel(time=0), numb_day)
-        
-    MONTH_in = tas.time.dt.month
-    MONTH_aligned = MONTH_in.broadcast_like(tas)
-        
-    LAT_in    = tas.lat
-    LAT_aligned = LAT_in.broadcast_like(tas)
-        
-    # Define conf variables
-    # Which variables are used: 'hursmin-tasmax', 'hurs-tasmax'
-    type_variables = "hursmin-tasmax"
-    # Which type of drying factor: 'original', 'NSH', 'NSHeq'
-    adjust_DryingFactor = "NSHeq"
-    # Which type of DayLength: 'original', 'bins', 'continuous'
-    adjust_DayLength = "continuous"
-    # Adjustment with overwintering DC: 'original', 'wDC'
-    adjust_overwinterDC = "original"
-            
-            
-    class Config:
-        def __init__(self, type_variables, adjust_DryingFactor, adjust_DayLength, adjust_overwinterDC):
-            self.type_variables = type_variables
-            self.adjust_DryingFactor = adjust_DryingFactor
-            self.adjust_DayLength = adjust_DayLength
-            self.adjust_overwinterDC = adjust_overwinterDC
-                
-    # Create an instance of the Config class with the desired values
-    cfg = Config("hursmin-tasmax", "NSHeq", "continuous", "original")
-        
-        
-        
-    for i in range(len(tas.time)):
-        #First initialize FFMC, DMC, and DC
-        tas_slice = tas.isel(time=i)
-        rhum_slice = rhum.isel(time=i)
-        wspd_slice = wspd.isel(time=i)
-        pr_slice = pr.isel(time=i)
-        lat_slice = LAT_aligned.isel(time=i)
-        month_slice = MONTH_aligned.isel(time=i)
-        
-        if int(tas_slice.time.dt.month) == 1 and int(tas_slice.time.dt.day) ==1:
-            FFMCPrev = xr.full_like(tas.isel(time=0), 0.00001)
-            DMCPrev = xr.full_like(tas.isel(time=0), 0.00001)
-            DCPrev = xr.full_like(tas.isel(time=0), 0.00001)
-            dataset = xr.Dataset({
-            'FFMCPrev': FFMCPrev,
-            'DMCPrev': DMCPrev,
-            'DCPrev': DCPrev})
-            dataset.to_netcdf(const_file)			
-        else:
-            ds_con      = xr.open_dataset(const_file)
-            FFMCPrev = ds_con.FFMCPrev
-            DMCPrev = ds_con.DMCPrev
-            DCPrev = ds_con.DCPrev
-            os.remove(const_file)
-                    
-        FFMCPrev_in = FFMCPrev.values
-        DMCPrev_in  = DMCPrev.values
-        DCPrev_in   = DCPrev.values	  
-          
+    wspd_new_units = "km/h"
+elif wspd_units in ["km/h", "km**-h"]:  # Already in km/h
+    wspd_new_units = "km/h"
+else:
+    wspd_new_units  = "Unknown"  # Handle unknown units
 
-        FFMC_in = FFMC(tas_slice.values, rhum_slice.values, wspd_slice.values, pr_slice.values, FFMCPrev_in)      
-        DMC_in =  DMC(tas_slice.values, rhum_slice.values, pr_slice.values, DMCPrev_in, lat_slice.values, numb_day_aligned.values, month_slice.values, cfg) 
-        DC_in = DC(tas_slice.values, pr_slice.values, DCPrev_in, lat_slice.values, month_slice.values, cfg) 
-        ISI_in = ISI(wspd_slice.values, FFMC_in)
-        BUI_in =  BUI(DMC_in, DC_in)
-        FWI_in = FWI(ISI_in, BUI_in)
-        FWI_all[i,:,:] = FWI_in
-            
-            
-        FFMC_in_xr = xr.DataArray(FFMC_in, coords={'lat': tas.lat, 'lon': tas.lon}, dims=['lat', 'lon'])
-        DMC_in_xr  = xr.DataArray(DMC_in, coords={'lat': tas.lat, 'lon': tas.lon}, dims=['lat', 'lon'])
-        DC_in_xr   = xr.DataArray(DC_in, coords={'lat': tas.lat, 'lon': tas.lon}, dims=['lat', 'lon'])
-        
-        dataset    = xr.Dataset({
-            'FFMCPrev': FFMC_in_xr,
-            'DMCPrev': DMC_in_xr,
-            'DCPrev': DC_in_xr})
+
+rhum = xr.where(rhum > 100, 100, rhum)
+
+
+FWI_all = xr.full_like(tas, 0.0)
+
+
+numb_day = sum([pd.Period(f"{year}-{i}-1").daysinmonth for i in range(1, 13)])
+numb_day_aligned = xr.full_like(tas.isel(time=0), numb_day)
+
+MONTH_in = tas.time.dt.month
+MONTH_aligned = MONTH_in.broadcast_like(tas)
+
+LAT_in = tas.lat
+LAT_aligned = LAT_in.broadcast_like(tas)
+
+# Define conf variables
+# Which variables are used: 'hursmin-tasmax', 'hurs-tasmax'
+type_variables = "hursmin-tasmax"
+# Which type of drying factor: 'original', 'NSH', 'NSHeq'
+adjust_DryingFactor = "NSHeq"
+# Which type of DayLength: 'original', 'bins', 'continuous'
+adjust_DayLength = "continuous"
+# Adjustment with overwintering DC: 'original', 'wDC'
+adjust_overwinterDC = "original"
+
+
+class Config:
+    def __init__(
+        self, type_variables, adjust_DryingFactor, adjust_DayLength, adjust_overwinterDC
+    ):
+        self.type_variables = type_variables
+        self.adjust_DryingFactor = adjust_DryingFactor
+        self.adjust_DayLength = adjust_DayLength
+        self.adjust_overwinterDC = adjust_overwinterDC
+
+
+# Create an instance of the Config class with the desired values
+cfg = Config("hursmin-tasmax", "NSHeq", "continuous", "original")
+
+
+for i in range(len(tas.time)):
+    # First initialize FFMC, DMC, and DC
+    tas_slice = tas.isel(time=i)
+    rhum_slice = rhum.isel(time=i)
+    wspd_slice = wspd.isel(time=i)
+    pr_slice = pr.isel(time=i)
+    lat_slice = LAT_aligned.isel(time=i)
+    month_slice = MONTH_aligned.isel(time=i)
+
+    if int(tas_slice.time.dt.month) == 1 and int(tas_slice.time.dt.day) == 1:
+        FFMCPrev = xr.full_like(tas.isel(time=0), 0.00001)
+        DMCPrev = xr.full_like(tas.isel(time=0), 0.00001)
+        DCPrev = xr.full_like(tas.isel(time=0), 0.00001)
+        dataset = xr.Dataset(
+            {"FFMCPrev": FFMCPrev, "DMCPrev": DMCPrev, "DCPrev": DCPrev}
+        )
         dataset.to_netcdf(const_file)
-        dataset.close()
-                
-        del FFMC_in, DMC_in, DC_in, ISI_in, BUI_in, FWI_in  
-            
-    FWI_all.attrs = {'long_name': 'Fire Weather Index', 'units': 'unit'}
-    FWI_all = FWI_all.to_dataset(name='fwi')
-
-    FWI_all .to_netcdf(path=out_file)	
-
-    print("Finished!")
-
-
-    checkOutputFile = f'{hpcrootdir}/tmp/fwi_output_{year}{month}{day}.nc'
-
-
-
-    if os.path.exists(checkOutputFile):
-        print('Output for wildfires_fwi application has been generated!')
-        print('Inspect output for validity.')
     else:
-        print('Output for wildfires_fwi application has NOT been generated!')
+        if os.path.exists(restart_file):
+            ds_con = xr.open_dataset(restart_file)
+        else:
+            ds_con = xr.open_dataset(const_file)
+        ds_con = xr.open_dataset(const_file)
+        FFMCPrev = ds_con.FFMCPrev
+        DMCPrev = ds_con.DMCPrev
+        DCPrev = ds_con.DCPrev
+        os.remove(const_file)
 
-    # =====================================================================
+    FFMCPrev_in = FFMCPrev.values
+    DMCPrev_in = DMCPrev.values
+    DCPrev_in = DCPrev.values
+
+    FFMC_in = FFMC(
+        tas_slice.values,
+        rhum_slice.values,
+        wspd_slice.values,
+        pr_slice.values,
+        FFMCPrev_in,
+    )
+    DMC_in = DMC(
+        tas_slice.values,
+        rhum_slice.values,
+        pr_slice.values,
+        DMCPrev_in,
+        lat_slice.values,
+        numb_day_aligned.values,
+        month_slice.values,
+        cfg,
+    )
+    DC_in = DC(
+        tas_slice.values,
+        pr_slice.values,
+        DCPrev_in,
+        lat_slice.values,
+        month_slice.values,
+        cfg,
+    )
+    ISI_in = ISI(wspd_slice.values, FFMC_in)
+    BUI_in = BUI(DMC_in, DC_in)
+    FWI_in = FWI(ISI_in, BUI_in)
+    FWI_all[i, :, :] = FWI_in
+
+    FFMC_in_xr = xr.DataArray(
+        FFMC_in, coords={"lat": tas.lat, "lon": tas.lon}, dims=["lat", "lon"]
+    )
+    DMC_in_xr = xr.DataArray(
+        DMC_in, coords={"lat": tas.lat, "lon": tas.lon}, dims=["lat", "lon"]
+    )
+    DC_in_xr = xr.DataArray(
+        DC_in, coords={"lat": tas.lat, "lon": tas.lon}, dims=["lat", "lon"]
+    )
+
+    dataset = xr.Dataset(
+        {"FFMCPrev": FFMC_in_xr, "DMCPrev": DMC_in_xr, "DCPrev": DC_in_xr}
+    )
+    dataset.to_netcdf(const_file)
+# Write the restart file for the 1st of each month
+    if int(tas_slice.time.dt.day) ==1:
+        dataset.to_netcdf(restart_file)
+        if os.path.exists(restart_file_prv):
+            print("File deleted successfully")
+            os.remove(restart_file_prv)
+    dataset.close()
+    
+
+    del FFMC_in, DMC_in, DC_in, ISI_in, BUI_in, FWI_in
+
+FWI_all.attrs = {"long_name": "Fire Weather Index", "units": " "}
+FWI_all = FWI_all.to_dataset(name="fwi")
+
+# Add global attributes
+FWI_all.attrs.update({
+    'dataset': 'climate-dt',
+    'experiment': 'historical',
+    'generation': '1',
+    'levtype': 'sfc',
+    'model': 'IFS-NEMO',
+    'history': 'Created on ' + pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S'),
+    'comment': 'This file was created as part of the Wildfire_FWI application run within the ClimateDT project.'
+})
 
 
-if __name__ == "__main__":
-    main()
+## Add global attributes
+## Copy only the "dataset" attribute if it exists
+#if "activity" in ds_t2m.attrs:
+#    FWI_all.attrs["activity"] = ds_t2m.attrs["activity"]
+#if "dataset" in ds_t2m.attrs:
+#    FWI_all.attrs["dataset"] = ds_t2m.attrs["dataset"]
+#if "experiment" in ds_t2m.attrs:
+#    FWI_all.attrs["experiment"] = ds_t2m.attrs["experiment"]
+#if "generation" in ds_t2m.attrs:
+#    FWI_all.attrs["generation"] = ds_t2m.attrs["generation"]
+#if "type" in ds_t2m.attrs:
+#    FWI_all.attrs["type"] = ds_t2m.attrs["type"]
+#if "levtype" in ds_t2m.attrs:
+#    FWI_all.attrs["levtype"] = ds_t2m.attrs["levtype"]
+#if "model" in ds_t2m.attrs:
+#    FWI_all.attrs["model"] = ds_t2m.attrs["model"]
+#if "class" in ds_t2m.attrs:
+#    FWI_all.attrs["class"] = ds_t2m.attrs["class"]
+#if "realization" in ds_t2m.attrs:
+#    FWI_all.attrs["realization"] = ds_t2m.attrs["realization"]
+#if "stream" in ds_t2m.attrs:
+#    FWI_all.attrs["stream"] = ds_t2m.attrs["stream"]   
+#if "resolution" in ds_t2m.attrs:
+#    FWI_all.attrs["resolution"] = ds_t2m.attrs["resolution"]
+#if "expver" in ds_t2m.attrs:
+#    FWI_all.attrs["expver"] = ds_t2m.attrs["expver"]        
+#FWI_all.attrs["history"] = 'Created on ' + pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S'),
+
+FWI_all.to_netcdf(path=out_file)
+
+print("Finished!")
+
+
+checkOutputFile = f"{hpcrootdir}/tmp/fwi_output_{year}{month}{day}.nc"
+
+
+if os.path.exists(checkOutputFile):
+    print("Output for wildfires_fwi application has been generated!")
+    print("Inspect output for validity.")
+else:
+    print("Output for wildfires_fwi application has NOT been generated!")
+
+# =====================================================================
