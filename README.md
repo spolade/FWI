@@ -1,4 +1,4 @@
-# DT CLIMATE - Wildfire Use Case (FWI Indicators)
+# DT CLIMATE - Wildfire Use Case (FWI Index)
 
 ![latest_release: v2.2.5](https://github.com/spolade/FWI/releases/tag/v2.2.5)
 
@@ -21,8 +21,7 @@ Instructions on the required packages and how to use the code are provided below
 
 
 
-- **FWI Indexs**: `wind_speed_anomalies(ws, climatology, scale='daily')` \
-Compute the wind speed anomalies.
+- **FWI Indexs**:
     - Input:
         - `tas:   xarray.DataArray ; (time,lat,lon)` -> temperature.
         - `pr:    xarray.DataArray ; (time,lat,lon)` -> precipitation.
@@ -40,7 +39,7 @@ Current version can be found at the latest publised tags in the git information.
 
 ## How to run
 
-Each function/indicator includes a description of its aim, inputs, outputs and corresponding references. The following is an example of how to run the `FWI applications` in a Python environment:
+Each submodule includes a description of its aim, inputs, outputs and corresponding referenences. The following is an example of how to run the `FWI applications` in a Python environment:
 
 ```
 import xarray as xr
