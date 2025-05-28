@@ -35,54 +35,6 @@ Compute the wind speed anomalies.
 
 
 
--
-- **Wind speed histogram (1D)**: `wind_speed_histogram_1D(ws, bins, target_lon, target_lat)` \
-Compute the wind speed histogram at a given location.
-    - Input:
-        - `ws: xarray.DataArray ; (time,lat,lon)` -> Wind speed magnitude at hub height.
-        - `bins: int` -> Number of bins.
-        - `target_lon: float` -> Longitude of the target location.
-        - `target_lat: float` -> Latitude of the target location.
-    
-    - Output:
-        - `counts: xarray.DataArray ; (bins) -> Number of counts in each bin.
-        - `bin_edges: xarray.DataArray ; (bins+1) -> Bin edges.
-
-    - References \
-        [1]: https://numpy.org/doc/stable/reference/generated/numpy.histogram.html
-
-- **Annual energy production**: `annual_energy_production_wind(capacity_factor, rated_power, num_turbines=1)` \
-Compute the annual energy production of a wind turbine from its capacity factor time series.
-    - Input:
-        - `capacity_factor: xarray.DataArray ; (time)` -> Capacity factor.
-        - `rated_power: float / int` -> Rated power of the wind turbine in MW.
-        - `num_turbines: int` -> Number of wind turbines. (default: 1)
-
-    - Output:
-        - `aep: xarray.DataArray ; (time)` -> Annual energy production in MWh.
-
-    - References \
-        [1]: https://doi.org/10.1016/j.renene.2019.04.135
-
-- **High wind events**: `high_wind_events(ws, threshold=25.0)` \
-Compute where and when wind speed exceeds a given threshold (cut-out speed).
-    - Input:
-        - `ws: xarray.DataArray ; (time,lat,lon)` -> Wind speed magnitude at hub height.
-        - `threshold: float` -> Wind speed threshold (default: 25.0 m/s). Cut-out speed of the wind turbine.
-
-    - Output:
-        - `hwe: xarray.DataArray ; (lat,lon)` -> Number of high wind events.
-
-- **Low wind events**: `low_wind_events(ws, threshold=3.0)` \
-Compute where and when wind speed is below a given threshold (cut-in speed).
-    - Input:
-        - `ws: xarray.DataArray ; (time,lat,lon)` -> Wind speed magnitude at hub height.
-        - `threshold: float` -> Wind speed threshold (default: 3.0 m/s). Cut-in speed of the wind turbine.
-
-    - Output:
-        - `lwe: xarray.DataArray ; (lat,lon)` -> Number of low wind events.
-
-
 ## Version
 Current version can be found at the latest publised tags in the git information.
 
