@@ -4,7 +4,9 @@ import xarray as xr
 import pandas as pd
 import argparse
 import calendar
+import glob
 import fwi
+
 
 from fwi.functions_cal_fwi import FFMC, DMC, DC, ISI, BUI, FWI
 
@@ -342,15 +344,15 @@ FWI_all.to_netcdf(path=out_file)
 
 
 
-checkOutputFile = os.path.join(in_path, f"{year_in}_*_T12_00_fwi.nc")
-
-if os.path.exists(checkOutputFile):
-    print("Output for wildfires_fwi application has been generated!")
-    print("Inspect output for validity.")
-else:
-    print("Output for wildfires_fwi application has NOT been generated!")
-
-print("Finished!")
+#checkOutputFile = os.path.join(in_path, f"{year_in}_*_T12_00_fwi.nc")
+#
+#if os.path.exists(checkOutputFile):
+#    print("Output for wildfires_fwi application has been generated!")
+#    print("Inspect output for validity.")
+#else:
+#    print("Output for wildfires_fwi application has NOT been generated!")
+#
+#print("Finished!")
 
 
 
