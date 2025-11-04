@@ -7,7 +7,6 @@ import calendar
 import glob
 import fwi
 
-
 from fwi.functions_cal_fwi import FFMC, DMC, DC, ISI, BUI, FWI
 
 print(
@@ -342,21 +341,6 @@ FWI_all.attrs["history"] = (
 FWI_all.to_netcdf(path=out_file)
 
 
-
-
-#checkOutputFile = os.path.join(in_path, f"{year_in}_*_T12_00_fwi.nc")
-#
-#if os.path.exists(checkOutputFile):
-#    print("Output for wildfires_fwi application has been generated!")
-#    print("Inspect output for validity.")
-#else:
-#    print("Output for wildfires_fwi application has NOT been generated!")
-#
-#print("Finished!")
-
-
-
-
 # Create The yearly Stats
 # Parse date inputs
 year_in  = int(args.year)
@@ -376,6 +360,7 @@ if (month_in == 12 and day_in == 31) or (month_in == 12 and day_in == 30 and not
 
     file_pattern = os.path.join(in_path, f"{year_in}_*_T12_00_fwi.nc")
     file_list = sorted(glob.glob(file_pattern))
+    print(file_list)
     expected_days = 366 if calendar.isleap(year_in) else 365
 
     if len(file_list) == expected_days:
