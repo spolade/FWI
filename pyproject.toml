@@ -26,6 +26,7 @@ dependencies = [
   "pandas",
   "xarray",
   "netcdf4",
+  "dask",
 ]
 
 [project.urls]
