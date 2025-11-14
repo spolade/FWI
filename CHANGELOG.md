@@ -1,5 +1,8 @@
 # Changelog
 
+## v2.2.8 — 2025-11-14
+- Bug fix 
+  
 ## v2.2.7 — 2025-11-04
 - Improved data download checks
 - Corrected the library load error from the previous release.
