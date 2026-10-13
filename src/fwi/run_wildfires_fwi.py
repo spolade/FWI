@@ -1,24 +1,6 @@
-"""Serial optimized local-noon FWI with independent historical/projection handover.
+"""
+FWI run script for ClimateDT 
 
-Use --historical-output-dir and --historical-input-dir on the first projection
-job. The transition date defaults to that job's first requested date and is
-saved; --projection-start-date can state it explicitly. Historical state must
-end two dates before projection start. Each scenario completes the pending
-historical local date in its own historical_boundary directory, writes its
-own historical annual statistics, then continues without initialization.
-Only model, realization (member), and resolution are metadata identity checks.
-Generation and expver are deliberately not checked. Grid/time/science checks
-remain enforced. See docs/HISTORICAL_PROJECTION_HANDOVER.md for operation.
-
-Always writes regular FWI; DO_OVERWINTERING optionally adds a separate product.
-Seasons use three completed noon-to-noon hourly temperature maxima, not future
-CMIP6 daily temperatures. Operational metadata and seasonal state are stored in
-private NetCDF groups in constants/restarts; daily *_fwi.nc has no runtime
-group. Other products retain their existing metadata. No JSON sidecar is produced.
-
-Preserves the existing /opa/ to /output/ directory mapping. Files containing UTC
-hourly inputs for adjacent dates must be accessible together. This is NOT civil
-time-zone noon or apparent solar noon (equation of time is not applied).
 """
 import argparse
 import calendar
