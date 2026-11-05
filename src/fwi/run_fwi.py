@@ -36,7 +36,7 @@ EXCLUDE_FIRST_DAY = True  # Automatically exclude the first date of a fresh inte
 MONTHLY_CHUNK = False
 DO_ANNUAL = True  # FWI annual statistics, independent of component annual statistics.
 DO_ANNUAL_OVERWINTERING = True  # Independent annual statistics for the additional seasonal FWI.
-DO_ANNUAL_COMPONENTS = True  # Component annual statistics, independent of DO_ANNUAL.
+DO_ANNUAL_COMPONENTS = False  # Component annual statistics, independent of DO_ANNUAL.
 WRITE_COMPONENTS = True  # True: also write YYYY_MM_DD_fwi_comp.nc.
 LSM_FILE = None  # Initial mask only; saved state takes priority on subsequent days.
 LAND_THRESHOLD = 0.5  # Land fraction >= threshold; 0 means any positive land fraction.
