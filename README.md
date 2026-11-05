@@ -1,6 +1,6 @@
 # DT CLIMATE - Wildfire Use Case (FWI Index)
 
-![latest_release: v2.2.5](https://github.com/spolade/FWI/releases/tag/v2.2.5)
+[Latest release: v2.2.9](https://github.com/spolade/FWI/releases/tag/v2.2.9)
 
 This repository contains the scripts related to the Wildfire FWI use case of the Climate Adaptation Digital Twin (Climate DT). All the work is being developed in the frame of the [Destination Earth initiative](https://destination-earth.eu/) from the European Commission, where [ECMWF](https://destine.ecmwf.int/) is one of the Entrusted Entities.
 
@@ -10,10 +10,17 @@ LICENSE NOTE: the European Union, represented by the European Commission is the 
 
 This repository calculates the Canadian Fire Weather Index (FWI), a widely used index for evaluating and assessing fire weather conditions. The code is adapted from the original algorithm provided by Van Wagner and Pickett in 1985: Van Wagner, C.E.; Pickett, T.L. (1985). Equations and FORTRAN program for the Canadian Forest Fire Weather Index System. Canadian Forestry Service, Petawawa National Forestry Institute, Chalk River, Ontario. Forestry Technical Report 33, 18 p.
 Several improvements have been made to adapt the code for global use by reducing regional dependencies.
-The FWI application consists of two main files:
+The workflow and application code are separated:
 
-functions_cal_fwi.py: the submodule containing calculation functions
-run_wildfires_fwi.py: the main script that calls the submodule and performs the calculations
+- `run_wildfires_fwi.py`: thin workflow entry point, importing the installed package.
+- `src/fwi/run_wildfires_fwi.py`: CLI argument parsing and dispatch only.
+- `src/fwi/run_fwi.py`: application settings, input handling, local-noon processing,
+  FWI execution, restart/handover logic, and annual statistics.
+- `src/fwi/functions_cal_fwi.py`: scientific calculation functions (unchanged).
+
+The installed `run_wildfires_fwi` command continues to work. All existing CLI
+arguments and aliases are retained. Application defaults such as `DO_ANNUAL`
+and `DO_OVERWINTERING` now live in `src/fwi/run_fwi.py`.
 
 Instructions on the required packages and how to use the code are provided below.
 
@@ -44,12 +51,11 @@ Each submodule includes a description of its aim, inputs, outputs and correspond
 ```
 import xarray as xr
 from fwi.functions_cal_fwi import FFMC, DMC, DC, ISI, BUI, FWI
-
-
+```
 
 ## Post-Processing
 
-The different annual statistics are calculated in the same run script using the daily FWI values.
+The annual statistics are calculated in `src/fwi/run_fwi.py` using the daily FWI values.
 
    1. Annual average
    2. Annual maximum
@@ -84,8 +90,27 @@ To copy the repository to your local directory:
 git clone https://github.com/spolade/FWI.git
 ```
 
-To install the package locally from the root directory (where the `setup.py` file is located):
+To install the package locally from the root directory (where `pyproject.toml` is located):
 ```
 pip install .
 ```
 
+
+## Workflow deployment
+
+Install this release of the FWI package in the application environment/container,
+then copy the root `run_wildfires_fwi.py` to the workflow's
+`runscripts/wildfires_fwi/` directory. Updating only the workflow wrapper does not
+update the application installed in an older container.
+
+```bash
+python run_wildfires_fwi.py --year 1991 --month 12 --day 01 \
+  --monthly-chunk --input-dir /path/to/opa --output-dir /path/to/output
+```
+
+For development without installation, run from the repository root with
+`PYTHONPATH="$PWD/src" python run_wildfires_fwi.py --help`.
+The package module also works with `python -m fwi.run_wildfires_fwi`.
+No scientific equations, thresholds, file naming, state handling, or annual
+statistics algorithms were changed by the launcher refactor. In particular,
+this structural change does not fix annual-statistics memory or wall-clock limits.
