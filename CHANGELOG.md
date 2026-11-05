@@ -1,5 +1,10 @@
 # Changelog
 
+## v2.3 — 2026-11-05
+- Disable annual component statistics by default (`DO_ANNUAL_COMPONENTS = False`).
+- Keep daily component files, regular FWI annual statistics and overwintered FWI annual statistics enabled.
+- Retain `--annual-components` to enable annual component statistics explicitly.
+
 ## v2.2.9 — 2026-11-05
 - Separate the workflow launcher and CLI from the FWI application in `fwi.run_fwi`.
 - Preserve Patch 4 calculations, defaults, CLI options, restart handling and output formats.

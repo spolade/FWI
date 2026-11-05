@@ -1,6 +1,6 @@
 # DT CLIMATE - Wildfire Use Case (FWI Index)
 
-[Latest release: v2.2.9](https://github.com/spolade/FWI/releases/tag/v2.2.9)
+[Latest release: v2.3](https://github.com/spolade/FWI/releases/tag/v2.3)
 
 This repository contains the scripts related to the Wildfire FWI use case of the Climate Adaptation Digital Twin (Climate DT). All the work is being developed in the frame of the [Destination Earth initiative](https://destination-earth.eu/) from the European Commission, where [ECMWF](https://destine.ecmwf.int/) is one of the Entrusted Entities.
 
@@ -21,6 +21,9 @@ The workflow and application code are separated:
 The installed `run_wildfires_fwi` command continues to work. All existing CLI
 arguments and aliases are retained. Application defaults such as `DO_ANNUAL`
 and `DO_OVERWINTERING` now live in `src/fwi/run_fwi.py`.
+Annual component statistics are disabled by default as of v2.3; use
+`--annual-components` to enable them. Daily component output and annual regular
+and overwintered FWI statistics remain enabled.
 
 Instructions on the required packages and how to use the code are provided below.
 
